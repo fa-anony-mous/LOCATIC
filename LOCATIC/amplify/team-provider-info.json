@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-locatic-dev-184210-authRole",
+      "UnauthRoleArn": "arn:aws:iam::021844569397:role/amplify-locatic-dev-184210-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::021844569397:role/amplify-locatic-dev-184210-authRole",
+      "Region": "ap-south-1",
+      "DeploymentBucketName": "amplify-locatic-dev-184210-deployment",
+      "UnauthRoleName": "amplify-locatic-dev-184210-unauthRole",
+      "StackName": "amplify-locatic-dev-184210",
+      "StackId": "arn:aws:cloudformation:ap-south-1:021844569397:stack/amplify-locatic-dev-184210/ade02730-c1a0-11ed-a222-02e215d2f438",
+      "AmplifyAppId": "d24nohbmtshh3s"
+    }
+  }
+}

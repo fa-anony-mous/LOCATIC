@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "723781297499",
+    "firebase_url": "https://locatic-3d072-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "locatic-3d072",
+    "storage_bucket": "locatic-3d072.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:723781297499:android:0080865e56c922ced7a67e",
+        "android_client_info": {
+          "package_name": "com.example.locatic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "723781297499-81dn30tuiinsaffltuqp5s8mvgali1sa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.locatic",
+            "certificate_hash": "defc2aba4a7a2e036de970b77c4037a5e7866bdf"
+          }
+        },
+        {
+          "client_id": "723781297499-b3141quf1uipltvag9ju3bfu2q7fp6mt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDD35fPRFSHwgUQpC9uI_B8DWeLYlrvK_g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "723781297499-b3141quf1uipltvag9ju3bfu2q7fp6mt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "723781297499-m41idbchttl291ampa73sdpjaplrhac9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.locatic"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
