@@ -7,17 +7,15 @@ import 'dart:convert';
 
 class Event {
   final String name;
-  final DateTime startTime;
-  final DateTime endTime;
-  final int numAttendees;
-  final int picturesCount;
+  final DateTime startDate;
+  final DateTime endDate;
+  final int joinCount;
 
   Event({
     required this.name,
-    required this.startTime,
-    required this.endTime,
-    required this.numAttendees,
-    required this.picturesCount,
+    required this.startDate,
+    required this.endDate,
+    required this.joinCount,
   });
 }
 
@@ -26,18 +24,16 @@ class EventApiService {
 
   EventApiService({required this.baseUrl});
 
-  Future<List<Event>> getEvents() async {
-    final response = await http.get(Uri.parse('$baseUrl/events'));
-
+  Future<List<Event>> getEvents({required String filter}) async {
+    final response = await http.get(Uri.parse('$baseUrl?filter=$filter'));
     if (response.statusCode == 200) {
-      final List<dynamic> jsonData = json.decode(response.body);
-
-      return jsonData.map((data) => Event(
+      final dynamic jsonData = json.decode(response.body);
+      final List<dynamic> eventsData = jsonData['events'];
+      return eventsData.map((data) => Event(
         name: data['name'],
-        startTime: DateTime.parse(data['start_time']),
-        endTime: DateTime.parse(data['end_time']),
-        numAttendees: data['num_attendees'],
-        picturesCount: data['pictures_count'],
+        startDate: DateTime.parse(data['start_date']),
+        endDate: DateTime.parse(data['end_date']),
+        joinCount: data['join_count'],
       )).toList();
     } else {
       throw Exception('Failed to load events');
@@ -55,10 +51,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String _selectedFilter = 'upcoming';
   int _numAttendees = 10;
   List<Event> _events = [];
 
-  final EventApiService _eventApiService = EventApiService(baseUrl: 'https://your-api-base-url.com');
+  final EventApiService _eventApiService = EventApiService(baseUrl: 'http://172.17.2.6:8000/events?filter=past');
 
   @override
   void initState() {
@@ -68,7 +65,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _fetchEvents() async {
     try {
-      final events = await _eventApiService.getEvents();
+      final events = await _eventApiService.getEvents(filter: _selectedFilter);
       setState(() {
         _events = events;
       });
@@ -81,7 +78,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LOCATIC'),
+        title: const Text('Events List'),
         actions: [
           IconButton(
             icon: const Icon(Icons.info),
@@ -91,50 +88,87 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: _events.length,
-        itemBuilder: (context, index) {
-          final event = _events[index];
-          return Column(
-            children: [
-              const SizedBox(height: 20),
-              Text(
-                event.name,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: () {
-                  // You can navigate to the specific event page using event details here
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Join the event'),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _numAttendees++;
-                          });
-                        },
-                        child: const Text('Join'),
-                      ),
-                    ],
-                  ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButton<String>(
+              value: _selectedFilter,
+              items: [
+                DropdownMenuItem(
+                  value: 'past',
+                  child: Text('Past'),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text('${event.numAttendees} people have joined this event.'),
-              const SizedBox(height: 20),
-            ],
-          );
-        },
+                DropdownMenuItem(
+                  value: 'ongoing',
+                  child: Text('Ongoing'),
+                ),
+                DropdownMenuItem(
+                  value: 'upcoming',
+                  child: Text('Upcoming'),
+                ),
+              ],
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedFilter = newValue!;
+                  _fetchEvents();
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _events.length,
+              itemBuilder: (context, index) {
+                final event = _events[index];
+                return Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    Text(
+                      event.name,
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EventDetailsPage(event: event),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Join the event'),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _numAttendees++;
+                                });
+                              },
+                              child: const Text('Join'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text('${event.joinCount} people have joined this event.'),
+                    const SizedBox(height: 20),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.blue,
@@ -154,6 +188,42 @@ class _HomePageState extends State<HomePage> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const Profile()));
           }
         },
+      ),
+    );
+  }
+}
+
+class EventDetailsPage extends StatelessWidget {
+  final Event event;
+
+  const EventDetailsPage({required this.event});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(event.name),
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Start Date: ${event.startDate}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'End Date: ${event.endDate}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'Number of Attendees: ${event.joinCount}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            // Add more event details as needed
+          ],
+        ),
       ),
     );
   }
