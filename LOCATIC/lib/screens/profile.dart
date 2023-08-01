@@ -1,89 +1,106 @@
 import 'package:flutter/material.dart';
+import 'about.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class Profile extends StatelessWidget {
+class Profile extends StatefulWidget {
   const Profile({super.key});
+
+  @override
+  _ProfileState createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
+  List<Map<String, dynamic>> _imageList = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchImageList();
+  }
+
+  void _fetchImageList() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Fetch image list from MongoDB database
+    final response =
+    await http.get(Uri.parse('https://your-mongodb-api-endpoint.com/images'));
+
+    setState(() {
+      _isLoading = false;
+      _imageList = json.decode(response.body);
+    });
+  }
+
+  void _deleteImage(int index) async {
+    // Delete image from MongoDB database
+    final response = await http.delete(
+        Uri.parse('https://your-mongodb-api-endpoint.com/images/${_imageList[index]['id']}'));
+    if (response.statusCode == 200) {
+      setState(() {
+        _imageList.removeAt(index);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Location"),
+        title: const Text("Locatic"),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.info),
+            icon: const Icon(Icons.info),
             onPressed: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Info()),
-              );
+                  context, MaterialPageRoute(builder: (context) => About()));
             },
           ),
         ],
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 3,
-              children: List.generate(
-                6,
-                    (index) => Container(
-                  margin: const EdgeInsets.all(10.0),
-                  color: Colors.grey[200],
-                  child: Center(
-                    child: Text("Image ${index+1}"),
-                  ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _imageList.isEmpty
+          ? const Center(child: Text('No images found'))
+          : ListView.builder(
+        itemCount: _imageList.length,
+        itemBuilder: (context, index) {
+          return Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              Image.network(_imageList[index]['imageUrl']),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  _deleteImage(index);
+                },
+              ),
+              Container(
+                color: Colors.black.withOpacity(0.5),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 5),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.thumb_up,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      '${_imageList[index]['likes']}',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(bottom: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    IconButton(
-                      icon: const Icon(Icons.explore),
-                      onPressed: () {
-                        // Do something when explore icon is clicked
-                      },
-                    ),
-                    const Text("Explore"),
-                  ],
-                ),
-                Column(
-                  children: <Widget>[
-                    IconButton(
-                      icon: const Icon(Icons.person),
-                      onPressed: () {
-                        // Do something when profile icon is clicked
-                      },
-                    ),
-                    const Text("Profile"),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class Info extends StatelessWidget {
-  const Info({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Info"),
-      ),
-      body: const Center(
-        child: Text("This is the Info page."),
+            ],
+          );
+        },
       ),
     );
   }

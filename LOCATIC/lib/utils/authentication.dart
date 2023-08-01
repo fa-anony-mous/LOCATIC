@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:locatic/screens/home.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:http/http.dart' as http;
 
 class Authentication {
   static SnackBar customSnackBar({required String content}) {
@@ -78,6 +81,16 @@ class Authentication {
               userCredential.user!.email != null &&
               userCredential.user!.email!.endsWith("@iiitdm.ac.in")) {
             user = userCredential.user;
+
+            // Send Firebase token to HTTP request
+            String? token = await user?.getIdToken();
+            Map<String, dynamic> requestData = {'token': token};
+            http.Response response = await http.post(
+              Uri.parse('https://example.com/api/firebase-token'),
+              body: jsonEncode(requestData),
+              headers: {'Content-Type': 'application/json'},
+            );
+            print(response.body);
           } else {
             await signOut(context: context);
             ScaffoldMessenger.of(context).showSnackBar(

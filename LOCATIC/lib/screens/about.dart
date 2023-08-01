@@ -20,14 +20,6 @@ class About extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 40.0),
-              Text(
-                "Founder & CEO : Saketh Ram",
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
               SizedBox(height: 50.0),
               Text(
                 "Upcoming features",

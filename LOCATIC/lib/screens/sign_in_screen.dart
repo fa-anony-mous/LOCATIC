@@ -39,13 +39,6 @@ class _SignInScreenState extends State<SignInScreen> {
                         fontSize: 40,
                       ),
                     ),
-                    Text(
-                      'Authentication',
-                      style: TextStyle(
-                        color: CustomColors.firebaseOrange,
-                        fontSize: 40,
-                      ),
-                    ),
                   ],
                 ),
               ),
